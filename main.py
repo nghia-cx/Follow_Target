@@ -6,15 +6,14 @@ from io import open
 sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 from Kalman_Filter_Custom_2D import KalmanFilter
 #-- Dependencies for video processing
-import time, os
+import time
 import math
 import argparse
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
-current_path = os.getcwd()
-sys.path.insert(0, current_path)
+sys.path.insert(0,r"/home/nghiacx310/Documents/Python/Code_Follow_Target")
 from config import *
 
 from imutils.video import FPS
@@ -181,12 +180,13 @@ if __name__ == "__main__":
                 trackers = []
                 confidences = []
 
-                # convert the frame to a blob
-                blob = cv2.dnn.blobFromImage(cv2.resize(frame, (300, 300)),
-                    0.007843, (300, 300), 127.5)
-
-
-                net.setInput(blob)
+                # convert the frame to a blob 
+                blob = cv2.dnn.blobFromImage(frame, size=(300, 300), ddepth=cv2.CV_8U)
+                # print("First Blob: {}".format(blob.shape))
+            
+                # send the blob to the network
+                net.setInput(blob, scalefactor=1.0/127.5, mean=[127.5, 127.5, 127.5])
+                # pass the blob through the network and obtain the detections
                 detections = net.forward()
 
                 # loop over the detections
@@ -274,7 +274,7 @@ if __name__ == "__main__":
             ######-----------------------Controlling drone-----------------------######
             
             #-- Fly forward and backward
-            if 60<=distance<=100:
+            if 60<=distance<=100: #(centimeter)
                 send_local_ned_velocity(0,0,0) #keep in place
                 cv2.putText(frame,"KEEP DISTANCE", (30,50),cv2.FONT_HERSHEY_SIMPLEX,0.6,(255,0,255),2)
                 save = True
